@@ -1,4 +1,4 @@
-package fi.dev.databindingmigration
+package fi.dev.databindingmigration.activity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val viewModel: MainActivityViewModel = viewModels<MainActivityViewModel>().value
+            val viewModel: MainViewModel = viewModels<MainViewModel>().value
             AppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun GreetingPreview() {
     AppTheme {
-        val viewModel = MainActivityViewModel()
+        val viewModel = MainViewModel()
         MainScreen(viewModel)
     }
 }
