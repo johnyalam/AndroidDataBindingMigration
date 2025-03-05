@@ -3,12 +3,15 @@ package fi.dev.databindingmigration.activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fi.dev.databindingmigration.activity.model.Company
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainViewModel : ViewModel()  {
     private val _company = MutableStateFlow<Company?>(null)
@@ -30,15 +33,49 @@ class MainViewModel : ViewModel()  {
     }
 
     fun onAddCompanyClicked() {
-        val newCompany = Company("Youtube", "Youtube.com")
-        _company.value = newCompany
+        viewModelScope.launch {
+            val newCompany = async { fetchCompanyInfo("Google", "google.com") }.await()
+            _company.value = newCompany
+
+            delay(2000)
+        }
+        fetchCompanyListParallel()
+    }
+
+    /**
+     * Fetches a company from a simulated request
+     */
+    private suspend fun fetchCompanyInfo(name: String, web: String): Company {
+        return withContext(Dispatchers.IO) { // Switching to IO dispatcher
+            delay(2000) // Simulate network delay
+            Company(name, web) // Return new company
+        }
+    }
+
+    /**
+     * Fetches company list in parallel using async-await
+     */
+    private fun fetchCompanyListParallel() {
+        viewModelScope.launch {
+            val appleDeferred = async(Dispatchers.IO) {fetchCompanyInfo("Apple", "apple.com") }
+            val googleDeferred = async(Dispatchers.IO) { fetchCompanyInfo("Google", "google.com") }
+            val youtubeDeferred = async(Dispatchers.IO) { fetchCompanyInfo("YouTube", "youtube.com") }
+
+            val companyList = listOf(
+                appleDeferred.await(),
+                googleDeferred.await(),
+                youtubeDeferred.await()
+            )
+
+            _companyList.value = companyList
+        }
     }
 
     // Adding company with interval of 1 second
     // Reactive data stream
     private fun addCompaniesWithInterval() : Flow<List<Company>> = flow {
         var count = 0
-        val maxCount = 12
+        val maxCount = 5
 
         while (count < maxCount) {
             val currentList = _companyList.value.toMutableList()

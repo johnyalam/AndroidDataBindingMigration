@@ -29,7 +29,7 @@ fun MainScreen(viewModel: MainViewModel) {
     val companyList by viewModel.companyList.collectAsState()
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(20.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
