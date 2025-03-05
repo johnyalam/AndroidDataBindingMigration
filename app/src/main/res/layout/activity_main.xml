@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data >
+        <variable
+            name="vm"
+            type="fi.dev.databindingmigration.DataBindingViewModel" />
+
+        <variable
+            name="company"
+            type="fi.dev.databindingmigration.Company" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <TextView
+            android:id="@+id/tvCompanyInfoAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Company"
+            android:onClick="@{() -> vm.onAddCompanyClicked()}"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:background="#43A047"
+            android:textColor="@color/white"
+            android:padding="10dp"/>
+
+        <TextView
+            android:id="@+id/CompanyName"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:text="@{vm.company.name }"
+            android:layout_below="@+id/tvCompanyInfoAdd"
+            android:layout_margin="20dp"
+            android:padding="10dp"
+            android:textColor="@color/white"
+            android:background="#7CB342"/>
+
+        <TextView
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:text="@{vm.company.website}"
+            android:layout_below="@+id/CompanyName"
+            android:layout_margin="10dp"
+            android:padding="10dp"
+            android:textColor="@color/white"
+            android:background="#7CB342"/>
+    </RelativeLayout>
+</layout>
