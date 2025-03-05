@@ -1,36 +1,46 @@
 package fi.dev.databindingmigration
 
 import android.os.Bundle
-import android.util.Log
-import android.widget.Button
-import android.widget.TextView
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import fi.dev.databindingmigration.theme.AppTheme
 
-class MainActivity : AppCompatActivity() {
-
-    private val viewModel : MainActivityViewModel by viewModels()
-
-    private val addCompanyInfo : Button by lazy { findViewById(R.id.addCompanyInfo) }
-    private val companyName : TextView by lazy { findViewById(R.id.companyName) }
-    private val companyWebsite : TextView by lazy { findViewById(R.id.companyWebsite) }
+class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        addCompanyInfo.setOnClickListener {
-            viewModel.onAddCompanyClicked()
+        enableEdgeToEdge()
+        setContent {
+            val viewModel: MainActivityViewModel = viewModels<MainActivityViewModel>().value
+            AppTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
+                ) {
+                    MainScreen(viewModel)
+                }
+            }
         }
 
-        viewModel.company.observe(this) {
-            Log.d(TAG, "Company changed")
-            companyName.text = it.name
-            companyWebsite.text = it.website
-        }
     }
 
     companion object {
         private const val TAG = "MainActivity"
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    AppTheme {
+        val viewModel = MainActivityViewModel()
+        MainScreen(viewModel)
     }
 }
