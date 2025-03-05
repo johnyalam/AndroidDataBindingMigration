@@ -4,8 +4,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class DataBindingViewModel : ViewModel()  {
-
+class MainActivityViewModel : ViewModel()  {
     val company = MutableLiveData<Company>()
 
     fun onAddCompanyClicked() {

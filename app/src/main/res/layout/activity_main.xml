@@ -1,57 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <Button
+        android:id="@+id/addCompanyInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/_20dp"
+        android:padding="@dimen/_10dp"
+        android:text="@string/add_company"
+        android:textColor="@color/white" />
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView
+        android:id="@+id/companyName"
+        android:layout_width="@dimen/_150dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/addCompanyInfo"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="@dimen/_20dp"
+        android:gravity="center"
+        android:padding="@dimen/_10dp"
+        android:background="@color/green"
+        android:textColor="@color/white" />
 
-    <data >
-        <variable
-            name="vm"
-            type="fi.dev.databindingmigration.DataBindingViewModel" />
+    <TextView
+        android:id="@+id/companyWebsite"
+        android:layout_width="@dimen/_150dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/companyName"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="@dimen/_10dp"
+        android:background="@color/green"
+        android:gravity="center"
+        android:padding="@dimen/_10dp"
+        android:textColor="@color/white" />
+</RelativeLayout>
 
-        <variable
-            name="company"
-            type="fi.dev.databindingmigration.Company" />
-    </data>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-
-        <TextView
-            android:id="@+id/tvCompanyInfoAdd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add Company"
-            android:onClick="@{() -> vm.onAddCompanyClicked()}"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:background="#43A047"
-            android:textColor="@color/white"
-            android:padding="10dp"/>
-
-        <TextView
-            android:id="@+id/CompanyName"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:gravity="center"
-            android:text="@{vm.company.name }"
-            android:layout_below="@+id/tvCompanyInfoAdd"
-            android:layout_margin="20dp"
-            android:padding="10dp"
-            android:textColor="@color/white"
-            android:background="#7CB342"/>
-
-        <TextView
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:gravity="center"
-            android:text="@{vm.company.website}"
-            android:layout_below="@+id/CompanyName"
-            android:layout_margin="10dp"
-            android:padding="10dp"
-            android:textColor="@color/white"
-            android:background="#7CB342"/>
-    </RelativeLayout>
-</layout>

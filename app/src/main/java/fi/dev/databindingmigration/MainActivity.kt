@@ -1,27 +1,36 @@
 package fi.dev.databindingmigration
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.util.Log
+import android.widget.Button
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import fi.dev.databindingmigration.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-    private val viewModel : DataBindingViewModel by viewModels()
+    private val viewModel : MainActivityViewModel by viewModels()
+
+    private val addCompanyInfo : Button by lazy { findViewById(R.id.addCompanyInfo) }
+    private val companyName : TextView by lazy { findViewById(R.id.companyName) }
+    private val companyWebsite : TextView by lazy { findViewById(R.id.companyWebsite) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_main)
 
-        binding.vm = viewModel
+        addCompanyInfo.setOnClickListener {
+            viewModel.onAddCompanyClicked()
+        }
 
-        viewModel.company.observe(this, Observer {
-            binding.invalidateAll()
-        })
+        viewModel.company.observe(this) {
+            Log.d(TAG, "Company changed")
+            companyName.text = it.name
+            companyWebsite.text = it.website
+        }
+    }
+
+    companion object {
+        private const val TAG = "MainActivity"
     }
 }
