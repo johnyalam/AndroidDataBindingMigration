@@ -11,15 +11,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import fi.dev.databindingmigration.activity.repository.CompanyRepository
 import fi.dev.databindingmigration.theme.AppTheme
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
-
+    private val viewModel: MainViewModel by lazy { viewModel<MainViewModel>().value }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val viewModel: MainViewModel = viewModels<MainViewModel>().value
             AppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
@@ -35,12 +36,12 @@ class MainActivity : ComponentActivity() {
         private const val TAG = "MainActivity"
     }
 }
-
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun MainScreenPreview() {
     AppTheme {
-        val viewModel = MainViewModel()
-        MainScreen(viewModel)
+        val previewRepository = CompanyRepository()
+        val previewViewModel: MainViewModel = MainViewModel(previewRepository)
+        MainScreen(previewViewModel)
     }
 }

@@ -3,14 +3,15 @@ package fi.dev.databindingmigration.activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fi.dev.databindingmigration.activity.model.Company
+import fi.dev.databindingmigration.activity.repository.CompanyRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
-class MainViewModel : ViewModel()  {
+class MainViewModel(private val repository: CompanyRepository) : ViewModel()  {
     private val _company = MutableStateFlow<Company?>(null)
     val company: StateFlow<Company?> = _company
 
@@ -23,32 +24,38 @@ class MainViewModel : ViewModel()  {
 
         // Start adding companies automatically
         viewModelScope.launch {
-            addCompaniesWithInterval().collect { newCompanies ->
+            repository.addCompaniesWithInterval(_companyList.value).collect { newCompanies ->
                 _companyList.value = newCompanies
             }
         }
     }
 
     fun onAddCompanyClicked() {
-        val newCompany = Company("Youtube", "Youtube.com")
-        _company.value = newCompany
+        viewModelScope.launch {
+            val newCompany = async { repository.fetchCompanyInfo("Google", "google.com") }.await()
+            _company.value = newCompany
+
+            delay(2000)
+        }
+        fetchCompanyListParallel()
     }
 
-    // Adding company with interval of 1 second
-    // Reactive data stream
-    private fun addCompaniesWithInterval() : Flow<List<Company>> = flow {
-        var count = 0
-        val maxCount = 12
+    /**
+     * Fetches company list in parallel using async-await
+     */
+    private fun fetchCompanyListParallel() {
+        viewModelScope.launch {
+            val appleDeferred = async(Dispatchers.IO) {repository.fetchCompanyInfo("Apple", "apple.com") }
+            val googleDeferred = async(Dispatchers.IO) { repository.fetchCompanyInfo("Google", "google.com") }
+            val youtubeDeferred = async(Dispatchers.IO) { repository.fetchCompanyInfo("YouTube", "youtube.com") }
 
-        while (count < maxCount) {
-            val currentList = _companyList.value.toMutableList()
+            val companyList = listOf(
+                appleDeferred.await(),
+                googleDeferred.await(),
+                youtubeDeferred.await()
+            )
 
-            val newCompany = Company("${count}. Youtube", "youtube.com")
-            currentList.add(newCompany)
-
-            emit(currentList.toList()) // Emit a new list
-            delay(1000) // Wait for 1 second
-            count++
+            _companyList.value = companyList
         }
     }
 }
