@@ -33,6 +33,7 @@ fun MainScreen(viewModel: MainViewModel) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(50.dp))
         Text(
             text = "Add Company",
             modifier = Modifier
