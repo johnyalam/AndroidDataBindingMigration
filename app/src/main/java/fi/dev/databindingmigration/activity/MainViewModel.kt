@@ -4,58 +4,83 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fi.dev.databindingmigration.activity.model.Company
 import fi.dev.databindingmigration.activity.repository.CompanyRepository
-import kotlinx.coroutines.Dispatchers
+import fi.dev.databindingmigration.activity.ui_state.CompanyIntent
+import fi.dev.databindingmigration.activity.ui_state.CompanyUiState
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class MainViewModel(private val repository: CompanyRepository) : ViewModel()  {
-    private val _company = MutableStateFlow<Company?>(null)
-    val company: StateFlow<Company?> = _company
+class MainViewModel(private val repository: CompanyRepository) : ViewModel() {
+    // Use backing properties and asStateFlow/asSharedFlow for better encapsulation
+    private val _state = MutableStateFlow<CompanyUiState>(CompanyUiState.Loading)
+    val state: StateFlow<CompanyUiState> = _state.asStateFlow()
 
-    private val _companyList = MutableStateFlow<List<Company>>(emptyList())
-    val companyList: StateFlow<List<Company>> = _companyList
+    private val _intent = MutableSharedFlow<CompanyIntent>()
+    val intent = _intent.asSharedFlow()
 
     init {
-        val initialCompany = Company("Apple", "apple.com")
-        _company.value = initialCompany
+        handleIntents()
+        sendIntent(CompanyIntent.LoadInitialCompany) // Load default company on startup
+    }
 
-        // Start adding companies automatically
+    fun sendIntent(intent: CompanyIntent) {
+        viewModelScope.launch { _intent.emit(intent) }
+    }
+
+    private fun handleIntents() {
         viewModelScope.launch {
-            repository.addCompaniesWithInterval(_companyList.value).collect { newCompanies ->
-                _companyList.value = newCompanies
+            _intent.collectLatest { intent -> // Use collectLatest to handle only the latest intent
+                _state.update { CompanyUiState.Loading } // Set loading state before each intent
+                when (intent) {
+                    is CompanyIntent.LoadInitialCompany -> loadInitialCompany()
+                    is CompanyIntent.FetchCompanyList -> fetchCompanyListParallel()
+                    is CompanyIntent.AddCompany -> addCompany(intent.name, intent.website)
+                }
             }
         }
     }
 
-    fun onAddCompanyClicked() {
-        viewModelScope.launch {
-            val newCompany = async { repository.fetchCompanyInfo("Google", "google.com") }.await()
-            _company.value = newCompany
-
-            delay(2000)
-        }
-        fetchCompanyListParallel()
+    private fun loadInitialCompany() {
+        // Use a more descriptive name for the initial company
+        val defaultCompany = Company("Apple", "apple.com")
+        _state.update { CompanyUiState.Success(defaultCompany) }
     }
 
-    /**
-     * Fetches company list in parallel using async-await
-     */
+    private fun addCompany(name: String, website: String) {
+        viewModelScope.launch {
+            try {
+                val newCompany = repository.fetchCompanyInfo(name, website)
+                _state.update { CompanyUiState.Success(newCompany) }
+            } catch (e: Exception) {
+                _state.update { CompanyUiState.Error("Failed to add company: ${e.message}") }
+            }
+        }
+    }
+
     private fun fetchCompanyListParallel() {
         viewModelScope.launch {
-            val appleDeferred = async(Dispatchers.IO) {repository.fetchCompanyInfo("Apple", "apple.com") }
-            val googleDeferred = async(Dispatchers.IO) { repository.fetchCompanyInfo("Google", "google.com") }
-            val youtubeDeferred = async(Dispatchers.IO) { repository.fetchCompanyInfo("YouTube", "youtube.com") }
-
-            val companyList = listOf(
-                appleDeferred.await(),
-                googleDeferred.await(),
-                youtubeDeferred.await()
-            )
-
-            _companyList.value = companyList
+            try {
+                // Use coroutines' async/await for better concurrency management
+                val companyList = listOf(
+                    asyncFetchCompany("Apple", "apple.com"),
+                    asyncFetchCompany("Google", "google.com"),
+                    asyncFetchCompany("YouTube", "youtube.com")
+                ).map { it.await() }
+                _state.update { CompanyUiState.CompanyListSuccess(companyList) }
+            } catch (e: Exception) {
+                _state.update { CompanyUiState.Error("Failed to fetch company list: ${e.message}") }
+            }
         }
+    }
+
+    // Helper function for async company fetching
+    private fun asyncFetchCompany(name: String, website: String) = viewModelScope.async {
+        repository.fetchCompanyInfo(name, website)
     }
 }
