@@ -16,7 +16,7 @@ import fi.dev.databindingmigration.theme.AppTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
-    private val viewModel: MainViewModel by lazy { viewModel<MainViewModel>().value }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -25,15 +25,11 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
+                    val viewModel: MainViewModel by lazy { viewModel<MainViewModel>().value }
                     MainScreen(viewModel)
                 }
             }
         }
-
-    }
-
-    companion object {
-        private const val TAG = "MainActivity"
     }
 }
 @Preview(showBackground = true)
