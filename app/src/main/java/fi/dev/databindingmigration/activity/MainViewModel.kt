@@ -10,7 +10,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
@@ -22,7 +21,6 @@ class MainViewModel(private val repository: CompanyRepository) : ViewModel() {
     val state: StateFlow<CompanyUiState> = _state.asStateFlow()
 
     private val _intent = MutableSharedFlow<CompanyIntent>()
-    val intent = _intent.asSharedFlow()
 
     init {
         handleIntents()
@@ -40,7 +38,6 @@ class MainViewModel(private val repository: CompanyRepository) : ViewModel() {
                 when (intent) {
                     is CompanyIntent.LoadInitialCompany -> loadInitialCompany()
                     is CompanyIntent.FetchCompanyList -> fetchCompanyListParallel()
-                    is CompanyIntent.AddCompany -> addCompany(intent.name, intent.website)
                 }
             }
         }
@@ -49,18 +46,7 @@ class MainViewModel(private val repository: CompanyRepository) : ViewModel() {
     private fun loadInitialCompany() {
         // Use a more descriptive name for the initial company
         val defaultCompany = Company("Apple", "apple.com")
-        _state.update { CompanyUiState.Success(defaultCompany) }
-    }
-
-    private fun addCompany(name: String, website: String) {
-        viewModelScope.launch {
-            try {
-                val newCompany = repository.fetchCompanyInfo(name, website)
-                _state.update { CompanyUiState.Success(newCompany) }
-            } catch (e: Exception) {
-                _state.update { CompanyUiState.Error("Failed to add company: ${e.message}") }
-            }
-        }
+        _state.update { CompanyUiState.Success(listOf(defaultCompany)) }
     }
 
     private fun fetchCompanyListParallel() {
@@ -72,7 +58,7 @@ class MainViewModel(private val repository: CompanyRepository) : ViewModel() {
                     asyncFetchCompany("Google", "google.com"),
                     asyncFetchCompany("YouTube", "youtube.com")
                 ).map { it.await() }
-                _state.update { CompanyUiState.CompanyListSuccess(companyList) }
+                _state.update { CompanyUiState.Success(companyList) }
             } catch (e: Exception) {
                 _state.update { CompanyUiState.Error("Failed to fetch company list: ${e.message}") }
             }
