@@ -1,4 +1,4 @@
-package fi.dev.databindingmigration.theme
+package fi.dev.databindingmigration.presentation.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
