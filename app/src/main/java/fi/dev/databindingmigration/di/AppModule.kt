@@ -1,10 +1,26 @@
 package fi.dev.databindingmigration.di
 
-import fi.dev.databindingmigration.activity.MainViewModel
-import fi.dev.databindingmigration.activity.repository.CompanyRepository
+import fi.dev.databindingmigration.data.remote.NetworkClient
+import fi.dev.databindingmigration.data.repository.PostRepository
+import fi.dev.databindingmigration.presentation.ui.main.MainViewModel
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
-    single { CompanyRepository() }  // Singleton
-    factory { MainViewModel(get()) }  // New instance every time
+    // Provide HttpLoggingInterceptor
+    single { NetworkClient.httpLoggingInterceptor }
+
+    // Provide OkHttpClient
+    single { NetworkClient.okHttpClient }
+
+    // Provide Retrofit instance
+    single { NetworkClient.retrofit }
+
+    // Provide ApiService
+    single { NetworkClient.apiService}
+
+    // Singleton
+    single { PostRepository(get()) }
+
+    viewModel { MainViewModel(get()) }
 }

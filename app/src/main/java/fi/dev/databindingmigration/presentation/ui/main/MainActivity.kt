@@ -1,18 +1,15 @@
-package fi.dev.databindingmigration.activity
+package fi.dev.databindingmigration.presentation.ui.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import fi.dev.databindingmigration.activity.repository.CompanyRepository
-import fi.dev.databindingmigration.theme.AppTheme
+import fi.dev.databindingmigration.presentation.ui.main.screen.MainScreen
+import fi.dev.databindingmigration.presentation.ui.theme.AppTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
@@ -32,12 +29,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-@Preview(showBackground = true)
-@Composable
-fun MainScreenPreview() {
-    AppTheme {
-        val previewRepository = CompanyRepository()
-        val previewViewModel: MainViewModel = MainViewModel(previewRepository)
-        MainScreen(previewViewModel)
-    }
-}
+
